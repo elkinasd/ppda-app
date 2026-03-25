@@ -54,3 +54,19 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+## UI and Layout Requirements
+
+- Use Bootstrap for layout and responsive structure.
+- Prefer simple grid layouts using Bootstrap containers, rows, and columns.
+- Avoid custom CSS frameworks or experimental styling systems.
+- Use standard HTML elements and Bootstrap classes whenever possible.
+- UI should resemble an enterprise dashboard, not a design experiment.
+- Focus on clarity, readability, and usability.
+
+## Code Generation Scope
+
+- Generate UI components only.
+- Do NOT implement backend logic.
+- Backend calls should be mocked or simulated.
+- Focus on UI structure, layout, and component interaction.

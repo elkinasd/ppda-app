@@ -1,0 +1,26 @@
+// Transparent/Dark Navbar SCSS
+.hover-white {
+  transition: color 0.2s ease;
+  &:hover {
+    color: #ffffff !important;
+  }
+}
+
+.transition-all {
+  transition: all 0.2s ease;
+}
+
+.letter-spacing-1 {
+  letter-spacing: 1px;
+}
+
+.glow-icon {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.hover-bg-light-10 {
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+  }
+}

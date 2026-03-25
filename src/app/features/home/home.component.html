@@ -1,0 +1,27 @@
+<div class="command-center-bg min-vh-100 d-flex flex-column position-relative overflow-hidden">
+  
+  <!-- Glowing Background Orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  
+  <!-- Main Content Space (Centered) -->
+  <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center position-relative z-index-1 container pt-5 mt-4 mt-md-0" style="min-height: 80vh;">
+    
+    <!-- STATE 1 & 2: HERO SECTION -->
+    <app-home-hero
+      [detectedDocumentsCount]="detectedDocumentsCount()"
+      [documentTypes]="documentTypes()"
+      (startAutomation)="startAutomation()"
+      (reviewDocuments)="reviewDocuments()"
+      (refreshDocuments)="refreshDetectedDocuments()">
+    </app-home-hero>
+
+  </div>
+
+  <!-- Bottom Dashboard Panel (Expanded & Hard Metrics) -->
+  <app-live-stream
+    [metrics]="metrics()"
+    [processingDocuments]="processingDocuments()">
+  </app-live-stream>
+  
+</div>

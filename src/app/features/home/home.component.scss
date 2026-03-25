@@ -1,0 +1,161 @@
+// Command Center Dark Theme
+.command-center-bg {
+  background-color: #030712; // deep extremely dark blue/black
+  color: #fff;
+}
+
+// Giant floating glowing orbs in the background
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  z-index: 0;
+  opacity: 0.15;
+}
+
+.orb-1 {
+  width: 600px;
+  height: 600px;
+  background-color: var(--bs-primary);
+  top: -100px;
+  left: -100px;
+  animation: float 20s infinite ease-in-out alternate;
+}
+
+.orb-2 {
+  width: 500px;
+  height: 500px;
+  background-color: #6366f1; // Indigo glow
+  bottom: -50px;
+  right: -50px;
+  animation: float 25s infinite ease-in-out alternate-reverse;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(100px, 50px); }
+}
+
+.z-index-1 {
+  z-index: 1;
+}
+
+// AI Core Brain Animation
+.ai-brain-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.ai-core {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid rgba(var(--bs-primary-rgb), 0.3);
+  animation: radarPulse 3s infinite cubic-bezier(0.21, 0.53, 0.56, 1);
+  z-index: 1;
+}
+
+@keyframes radarPulse {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+
+.shadow-primary {
+  box-shadow: 0 0 30px rgba(var(--bs-primary-rgb), 0.5);
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--bs-primary);
+  margin-right: 6px;
+  box-shadow: 0 0 10px var(--bs-primary);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+// Giant Call to Action
+.btn-cta {
+  background: linear-gradient(135deg, #0d6efd 0%, #6366f1 100%);
+  border: none;
+  box-shadow: 0 10px 30px -10px rgba(13, 110, 253, 0.8), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hover-scale {
+  &:hover {
+    transform: scale(1.03);
+  }
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Glassmorphism components
+.glass-button {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.letter-spacing-1 {
+  letter-spacing: 1px;
+}
+
+.hover-white {
+  transition: color 0.2s ease;
+  &:hover { color: #fff !important; }
+}
+
+.hover-highlight {
+  transition: background-color 0.2s ease;
+  &:hover { background-color: rgba(255,255,255,0.05) !important; }
+}
+
+// Custom scrollbar for the stream
+.stream-container::-webkit-scrollbar {
+  width: 4px;
+}
+.stream-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.stream-container::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}

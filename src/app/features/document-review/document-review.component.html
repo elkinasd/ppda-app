@@ -1,0 +1,251 @@
+<div class="container-fluid min-vh-100 d-flex flex-column" style="background-color: #0f172a;"> <!-- Deep Slate Navy Background -->
+  
+  <!-- Clear space for the absolute Navbar -->
+  <div style="height: 85px;" class="w-100 flex-shrink-0"></div>
+
+  <!-- STATE 1: ACTIVE REVIEW QUEUE (Machine-Gun Mode) -->
+  <ng-container *ngIf="!isComplete()">
+    
+    <!-- Queue Header Section -->
+    <div class="d-flex flex-column mb-4 px-3 border-bottom border-secondary border-opacity-25 pb-4">
+      
+      <!-- Top Row: Back button, Title & Progress Label -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-secondary border-0 text-light rounded-circle d-flex justify-content-center align-items-center hover-glow" style="width: 45px; height: 45px;" (click)="goBack()" title="Volver al Dashboard">
+            <i class="bi bi-arrow-left fs-5"></i>
+          </button>
+          <div>
+            <p class="text-primary mb-0 fw-bold letter-spacing-1 text-uppercase" style="font-size: 0.75rem;">Revisión rápida</p>
+            <h2 class="h3 mb-0 fw-bold text-white d-flex align-items-center gap-2">
+              Documento {{currentIndex() + 1}} de {{reviewQueue().length}}
+            </h2>
+          </div>
+        </div>
+        
+        <div class="text-end d-none d-sm-block">
+           <span class="text-white fw-bold font-monospace fs-5">{{progressPercentage()}}%</span>
+           <span class="text-white-50 small ms-2 text-uppercase letter-spacing-1">completado</span>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Psychological Progress Bar -->
+      <div class="progress bg-dark w-100 shadow-sm" style="height: 6px; border-radius: 3px;">
+         <div class="progress-bar bg-primary" 
+              [style.width]="progressPercentage() + '%'" 
+              style="transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);"></div>
+      </div>
+    </div>
+
+    <!-- Split Screen Layout (Dark & Focused) -->
+    <div class="row flex-grow-1 mx-0 g-4">
+      
+      <!-- LEFT PANE: Document Viewer (High Contrast) -->
+      <div class="col-lg-7 d-flex flex-column">
+        
+        <!-- Anxiety Reduction / Context Pills -->
+        <div class="d-flex flex-wrap gap-2 mb-3 px-1">
+          <span class="badge bg-secondary bg-opacity-25 border border-secondary border-opacity-50 text-light py-2 px-3 fw-medium font-monospace">
+            <i class="bi bi-file-earmark-text me-2"></i> {{currentDocument().type}}
+          </span>
+          <span class="badge bg-secondary bg-opacity-25 border border-secondary border-opacity-50 text-light py-2 px-3 fw-medium font-monospace">
+            <i class="bi bi-building me-2"></i> {{currentDocument().provider}}
+          </span>
+          <span class="badge py-2 px-3 fw-bold font-monospace d-flex align-items-center gap-2 border bg-dark"
+                [ngClass]="{
+                  'border-success text-success': currentDocument().overallConfidence >= 0.85,
+                  'border-warning text-warning': currentDocument().overallConfidence < 0.85
+                }">
+            <i class="bi bi-shield-check" *ngIf="currentDocument().overallConfidence >= 0.85"></i>
+            <i class="bi bi-shield-exclamation" *ngIf="currentDocument().overallConfidence < 0.85"></i>
+            Detectado con {{currentDocument().overallConfidence | percent}} de confianza
+          </span>
+        </div>
+
+        <div class="card border border-secondary border-opacity-25 shadow-lg rounded-4 flex-grow-1 h-100 bg-dark overflow-hidden p-0" style="background-color: #1e293b !important; min-height: 600px;">
+          
+          <!-- Viewer Toolbar -->
+          <div class="d-flex justify-content-between align-items-center p-2 bg-dark bg-opacity-50 border-bottom border-dark">
+            <div class="d-flex gap-2 ms-2">
+              <span class="badge bg-secondary bg-opacity-25 text-light fw-normal font-monospace">PDF</span>
+              <span class="text-secondary small fw-medium text-truncate" style="max-width: 200px;">{{currentDocument().title}}</span>
+            </div>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-dark text-light border-0"><i class="bi bi-zoom-out"></i></button>
+              <button class="btn btn-sm btn-dark text-light border-0"><i class="bi bi-zoom-in"></i></button>
+              <div class="vr mx-1 bg-secondary opacity-50"></div>
+              <button class="btn btn-sm btn-dark text-primary border-0"><i class="bi bi-bounding-box-circles"></i></button>
+            </div>
+          </div>
+
+          <!-- The Document Canvas (Dark backdrop, shockingly bright document) -->
+          <div class="flex-grow-1 d-flex justify-content-center align-items-center position-relative p-4" style="background-color: #0f172a; overflow: auto;">
+            
+            <!-- Document Paper (Mock view representing the current document) -->
+            <div class="bg-white shadow-lg position-relative p-5 text-start paper-texture" style="width: 100%; max-width: 650px; min-height: 850px; border-radius: 4px;">
+              <div class="mb-5 text-end"><h1 class="text-secondary fw-bold opacity-50 border-bottom d-inline-block pb-2 text-uppercase">{{currentDocument().type}}</h1></div>
+              
+              <div class="mb-4">
+                <strong class="text-secondary small text-uppercase letter-spacing-1">Vendor</strong>
+                <div class="fs-5 p-1 text-dark fw-medium">{{currentDocument().provider}}</div>
+              </div>
+
+              <!-- Loop through fields visually on the paper to simulate OCR mapping -->
+              <div class="row mb-4">
+                <div class="col-6 mb-4" *ngFor="let field of currentDocument().fields">
+                  <!-- The specific focal point: low confidence -->
+                  <div class="position-relative">
+                    <strong class="text-secondary small text-uppercase letter-spacing-1">{{field.labelEn}}</strong>
+                    
+                    <div [ngClass]="{
+                           'border border-2 border-danger bg-danger bg-opacity-10 p-1 position-relative rounded-1': field.confidence < 0.60 && !field.isEdited,
+                           'p-1': field.confidence >= 0.60 || field.isEdited
+                         }"
+                         [style.box-shadow]="field.confidence < 0.60 && !field.isEdited ? '0 0 0 4px rgba(220, 53, 69, 0.2)' : 'none'">
+                      <span class="text-dark fw-medium">{{field.value}}</span>
+                      <!-- Crosshair tag for low confidence -->
+                      <span *ngIf="field.confidence < 0.60 && !field.isEdited" class="position-absolute top-0 start-100 translate-middle badge bg-danger text-white rounded-0 font-monospace" style="font-size: 0.65rem;">
+                        AI_CONF: {{field.confidence | percent}}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANE: Data Extraction Panel (Dark Mode Form) -->
+      <div class="col-lg-5 d-flex flex-column">
+        <div class="card border border-secondary border-opacity-25 shadow-lg rounded-4 flex-grow-1 h-100 d-flex flex-column" style="background-color: #1e293b !important;">
+          
+          <!-- Header -->
+          <div class="px-4 py-4 border-bottom border-secondary border-opacity-25">
+            <div class="d-flex align-items-center mb-1">
+              <h3 class="h5 fw-bold mb-0 text-white font-monospace"><i class="bi bi-terminal text-primary me-2"></i>Data_Extraction_Log</h3>
+            </div>
+            <p class="text-secondary small mb-0 font-monospace">Verifica las discrepancias en rojo antes de confirmar el bloque.</p>
+          </div>
+          
+          <div class="card-body p-4 pt-3 overflow-auto custom-scrollbar flex-grow-1">
+            
+            <form>
+              <div class="mb-4" *ngFor="let field of currentDocument().fields">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <label [for]="field.id" class="form-label fw-medium text-light mb-0" style="font-size: 0.85rem;">{{field.labelEs}}</label>
+                  
+                  <!-- Terminal style confidence score -->
+                  <span class="font-monospace small"
+                        [ngClass]="{
+                          'text-success': field.confidence >= 0.85,
+                          'text-warning': field.confidence >= 0.60 && field.confidence < 0.85,
+                          'text-danger': field.confidence < 0.60
+                        }">
+                    [ {{field.confidence | percent}} ]
+                  </span>
+                </div>
+
+                <!-- Dark mode inputs -->
+                <div class="position-relative">
+                  <input type="text" 
+                         class="form-control form-control-lg text-white border-secondary border-opacity-50 px-3 font-monospace shadow-none" 
+                         style="background-color: #0f172a; transition: all 0.2s ease; border-radius: 6px;"
+                         [id]="field.id" 
+                         [value]="field.value"
+                         (input)="updateFieldValue(field.id, $event)"
+                         [ngClass]="{
+                           'border-danger shadow-danger': field.confidence < 0.60 && !field.isEdited,
+                           'border-warning': field.confidence >= 0.60 && field.confidence < 0.85 && !field.isEdited,
+                           'border-success': field.isEdited,
+                           'border-secondary border-opacity-25': field.confidence >= 0.85 && !field.isEdited
+                         }">
+                  
+                  <!-- Inside icon absolute positioned -->
+                  <div class="position-absolute d-flex align-items-center justify-content-center" style="right: 15px; top: 0; bottom: 0; pointer-events: none;">
+                     <i class="bi" 
+                        *ngIf="field.confidence < 0.85 || field.isEdited"
+                        [ngClass]="{
+                          'bi-exclamation-octagon-fill text-danger': field.confidence < 0.60 && !field.isEdited, 
+                          'bi-cone-striped text-warning': field.confidence >= 0.60 && field.confidence < 0.85 && !field.isEdited,
+                          'bi-check-lg text-success fs-5 fw-bold': field.isEdited
+                        }"></i>
+                  </div>
+                </div>
+                
+                <!-- Pro help text -->
+                <div class="text-danger small mt-2 d-flex font-monospace" *ngIf="field.confidence < 0.60 && !field.isEdited" style="font-size: 0.75rem;">
+                  <i class="bi bi-chevron-right me-2"></i> 
+                  <span>ERROR_LIGERO: Patrón ruidoso detectado. Sobrescriba valor.</span>
+                </div>
+              </div>
+            </form>
+
+          </div>
+          
+          <div class="card-footer border-top border-secondary border-opacity-25 p-4 pt-3 d-flex gap-3" style="background-color: #1e293b !important;">
+            
+            <!-- Flow Preservation: Skip button -->
+            <button class="btn btn-outline-secondary py-3 fw-bold font-monospace letter-spacing-1 d-flex justify-content-center align-items-center flex-grow-0" style="border-radius: 6px; text-transform: uppercase; width: 30%;" (click)="skipDocument()">
+              <i class="bi bi-skip-forward-fill"></i> <span class="d-none d-xl-inline ms-2">Saltar</span>
+            </button>
+
+            <!-- Momentum Action: Commit (Next) -->
+            <button class="btn btn-primary py-3 fw-bold font-monospace letter-spacing-1 d-flex justify-content-center align-items-center gap-2 flex-grow-1" style="border-radius: 6px; text-transform: uppercase;" (click)="approveDocument()">
+              <i class="bi bi-database-fill-up"></i> Ejecutar Commit
+            </button>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <!-- STATE 2: ZERO INBOX SUMMARY (Dopamine final hit) -->
+  <ng-container *ngIf="isComplete()">
+    <div class="flex-grow-1 d-flex flex-column justify-content-center align-items-center px-4 w-100" style="min-height: 80vh;">
+      
+      <!-- Trophy Icon -->
+      <div class="d-flex justify-content-center align-items-center mb-4">
+        <div class="bg-primary bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center" style="width: 100px; height: 100px; box-shadow: 0 0 50px rgba(13, 110, 253, 0.2);">
+          <i class="bi bi-inbox-fill text-primary" style="font-size: 3rem;"></i>
+        </div>
+      </div>
+
+      <h1 class="display-3 fw-bold text-white mb-3 text-shadow-glow letter-spacing-negative-1 text-center">INBOX ZERO</h1>
+      <p class="fs-4 text-white-50 fw-light text-center mb-5" style="max-width: 600px;">
+        La cola de revisión manual está limpia. Has superado a la máquina.
+      </p>
+
+      <!-- Honest Diagnostic Metrics -->
+      <div class="row g-4 w-100 justify-content-center mb-5" style="max-width: 800px;">
+        <div class="col-sm-6 col-md-4">
+          <div class="glass-panel p-4 rounded-4 shadow-sm text-center h-100 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+            <div class="fs-2 fw-bold text-white lh-1 mb-2">{{processedCount()}}</div>
+            <div class="text-white-50 small fw-semibold text-uppercase letter-spacing-1 font-monospace">Doc. Completados</div>
+          </div>
+        </div>
+        
+        <div class="col-sm-6 col-md-4">
+          <div class="glass-panel p-4 rounded-4 shadow-sm text-center h-100 bg-dark bg-opacity-50 border border-secondary border-opacity-25">
+             <div class="fs-2 fw-bold text-warning lh-1 mb-2">{{skippedCount()}}</div>
+             <div class="text-white-50 small fw-semibold text-uppercase letter-spacing-1 font-monospace">Doc. Saltados</div>
+          </div>
+        </div>
+
+        <div class="col-sm-12 col-md-4">
+          <div class="glass-panel p-4 rounded-4 shadow-sm text-center h-100 bg-primary bg-opacity-10 border border-primary border-opacity-25">
+             <div class="fs-2 fw-bold text-primary lh-1 mb-2">~{{timeSavedMinutes()}} min</div>
+             <div class="text-primary opacity-75 small fw-semibold text-uppercase letter-spacing-1 font-monospace">Tiempo Ahorrado</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-outline-light px-5 py-3 rounded-pill glass-button hover-scale d-flex align-items-center gap-2 fw-bold letter-spacing-1 text-uppercase" (click)="goBack()">
+        <i class="bi bi-arrow-left"></i> Volver al Dashboard Central
+      </button>
+    </div>
+  </ng-container>
+
+</div>

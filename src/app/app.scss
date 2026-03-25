@@ -1,0 +1,21 @@
+/* Global overrides for the PPDA Application */
+body {
+  background-color: #f8f9fa; /* Bootstrap's bg-light */
+}
+
+/* Typography adjustments */
+.fw-semibold {
+  font-weight: 600;
+}
+
+.fw-medium {
+  font-weight: 500;
+}
+
+/* Table styling override for better border handling */
+.table-borderless > tbody > tr > td {
+  border-bottom: 1px solid #f1f3f5;
+}
+.table-borderless > tbody > tr:last-child > td {
+  border-bottom: none;
+}

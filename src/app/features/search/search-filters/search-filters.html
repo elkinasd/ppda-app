@@ -1,0 +1,101 @@
+<div class="position-sticky" style="top: 100px;">
+  <h4 class="h6 text-white text-uppercase letter-spacing-1 fw-bold mb-4">Descubrimiento</h4>
+  
+  <!-- Document Types Filter Group -->
+  <div class="mb-5">
+    <h5 class="text-secondary small text-uppercase letter-spacing-1 mb-3">Tipo de Documento</h5>
+    
+    <div class="form-check mb-3 custom-checkbox-group">
+      <input class="form-check-input bg-dark border-secondary bg-opacity-50" type="checkbox" id="type-invoice" [checked]="filterTypes['Factura']" (change)="toggleType('Factura')">
+      <label class="form-check-label text-light d-flex justify-content-between align-items-center cursor-pointer w-100 pe-2" for="type-invoice">
+        <span>Facturas</span>
+        <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill font-monospace fw-normal">{{aggregations.facturasCount}}</span>
+      </label>
+    </div>
+
+    <div class="form-check mb-3 custom-checkbox-group">
+      <input class="form-check-input bg-dark border-secondary bg-opacity-50" type="checkbox" id="type-contract" [checked]="filterTypes['Contrato']" (change)="toggleType('Contrato')">
+      <label class="form-check-label text-light d-flex justify-content-between align-items-center cursor-pointer w-100 pe-2" for="type-contract">
+        <span>Contratos</span>
+        <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill font-monospace fw-normal">{{aggregations.contratosCount}}</span>
+      </label>
+    </div>
+
+    <div class="form-check mb-3 custom-checkbox-group">
+      <input class="form-check-input bg-dark border-secondary bg-opacity-50" type="checkbox" id="type-receipt" [checked]="filterTypes['Recibo']" (change)="toggleType('Recibo')">
+      <label class="form-check-label text-light d-flex justify-content-between align-items-center cursor-pointer w-100 pe-2" for="type-receipt">
+        <span>Recibos</span>
+        <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill font-monospace fw-normal">{{aggregations.recibosCount}}</span>
+      </label>
+    </div>
+
+    <div class="form-check mb-3 custom-checkbox-group">
+      <input class="form-check-input bg-dark border-secondary bg-opacity-50" type="checkbox" id="type-form" [checked]="filterTypes['Formulario']" (change)="toggleType('Formulario')">
+      <label class="form-check-label text-light d-flex justify-content-between align-items-center cursor-pointer w-100 pe-2" for="type-form">
+        <span>Formularios</span>
+        <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill font-monospace fw-normal">{{aggregations.formulariosCount}}</span>
+      </label>
+    </div>
+
+    <div class="form-check mb-3 custom-checkbox-group">
+      <input class="form-check-input bg-dark border-secondary bg-opacity-50" type="checkbox" id="type-identity" [checked]="filterTypes['Documento de Identidad']" (change)="toggleType('Documento de Identidad')">
+      <label class="form-check-label text-light d-flex justify-content-between align-items-center cursor-pointer w-100 pe-2" for="type-identity">
+        <span>Identidades</span>
+        <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill font-monospace fw-normal">{{aggregations.identidadesCount}}</span>
+      </label>
+    </div>
+
+    <div class="form-check mb-3 custom-checkbox-group">
+      <input class="form-check-input bg-dark border-secondary bg-opacity-50" type="checkbox" id="type-other" [checked]="filterTypes['Otro']" (change)="toggleType('Otro')">
+      <label class="form-check-label text-light d-flex justify-content-between align-items-center cursor-pointer w-100 pe-2" for="type-other">
+        <span>Otros</span>
+        <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill font-monospace fw-normal">{{aggregations.otrosCount}}</span>
+      </label>
+    </div>
+
+    <!-- Filtro de Documentos Fallidos o Riesgosos -->
+    <div class="form-check mb-3 custom-checkbox-group">
+      <input class="form-check-input bg-danger border-danger bg-opacity-25" type="checkbox" id="type-error" [checked]="filterTypes['Desconocido']" (change)="toggleType('Desconocido')">
+      <label class="form-check-label text-danger d-flex justify-content-between align-items-center cursor-pointer w-100 pe-2" for="type-error">
+        <span>Fallidos / Riesgo</span>
+        <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill font-monospace fw-normal blink-soft" *ngIf="aggregations.erroresCount > 0">{{aggregations.erroresCount}}</span>
+        <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill font-monospace fw-normal" *ngIf="aggregations.erroresCount === 0">0</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Date Filters -->
+  <div class="mb-5">
+    <h5 class="text-secondary small text-uppercase letter-spacing-1 mb-3">Fecha de Extracción</h5>
+    <div class="list-group list-group-flush rounded-3 border border-secondary border-opacity-25 overflow-hidden">
+      <button 
+        type="button" 
+        class="list-group-item list-group-item-action bg-dark text-white border-bottom border-secondary border-opacity-50 py-3"
+        [class.active-filter]="currentDateFilter === null"
+        [class.bg-opacity-75]="currentDateFilter === null"
+        [class.text-white-50]="currentDateFilter !== null"
+        (click)="setDate(null)">
+        Todo el tiempo
+      </button>
+      <button 
+        type="button" 
+        class="list-group-item list-group-item-action bg-dark text-white border-bottom border-secondary border-opacity-50 py-3"
+        [class.active-filter]="currentDateFilter === 7"
+        [class.bg-opacity-75]="currentDateFilter === 7"
+        [class.text-white-50]="currentDateFilter !== 7"
+        (click)="setDate(7)">
+        Últimos 7 días
+      </button>
+      <button 
+        type="button" 
+        class="list-group-item list-group-item-action bg-dark text-white border-bottom border-secondary border-opacity-50 py-3"
+        [class.active-filter]="currentDateFilter === 30"
+        [class.bg-opacity-75]="currentDateFilter === 30"
+        [class.text-white-50]="currentDateFilter !== 30"
+        (click)="setDate(30)">
+        Últimos 30 días
+      </button>
+    </div>
+  </div>
+
+</div>

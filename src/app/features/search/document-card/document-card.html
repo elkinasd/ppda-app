@@ -1,0 +1,91 @@
+<!-- ENRICHED RESULT CARD -->
+<div class="card result-card border-secondary border-opacity-25 h-100 text-decoration-none d-block overflow-hidden transition-all bg-dark shadow-sm cursor-pointer position-relative"
+      [class.border-primary]="isSelected"
+      [class.bg-opacity-75]="isSelected"
+      (click)="preview.emit(doc)">
+
+  <!-- Type & Status Header Row -->
+  <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-start pe-5">
+    
+    <!-- Document Type Badge -->
+    <div class="d-flex align-items-center gap-2">
+      <div class="p-2 rounded-3 bg-dark border border-secondary border-opacity-50 d-flex justify-content-center align-items-center"
+          [ngClass]="{
+            'text-primary': doc.type === 'Factura',
+            'text-warning': doc.type === 'Contrato',
+            'text-success': doc.type === 'Recibo',
+            'text-info': doc.type === 'Formulario'
+          }" style="width: 36px; height: 36px;">
+        <i class="bi" 
+          [ngClass]="{
+            'bi-receipt': doc.type === 'Factura',
+            'bi-file-earmark-text': doc.type === 'Contrato',
+            'bi-ticket-detailed': doc.type === 'Recibo',
+            'bi-ui-radios': doc.type === 'Formulario'
+          }"></i>
+      </div>
+      <span class="text-white-50 text-uppercase letter-spacing-1 font-monospace" style="font-size: 0.70rem;">{{doc.type}}</span>
+    </div>
+
+    <!-- Status Dot -->
+    <span class="badge rounded-pill text-uppercase font-monospace d-flex align-items-center gap-1 border"
+          [ngClass]="{
+            'border-success text-success bg-dark': doc.status === 'Procesado',
+            'border-warning text-warning bg-dark': doc.status === 'Requiere Revisión',
+            'border-danger text-danger bg-dark': doc.status === 'Error'
+          }" style="font-size: 0.65rem; padding: 0.4rem 0.6rem;">
+      <i class="bi" 
+        [ngClass]="{
+          'bi-check2': doc.status === 'Procesado',
+          'bi-exclamation-triangle': doc.status === 'Error' || doc.status === 'Requiere Revisión'
+        }"></i> {{doc.status}}
+    </span>
+  </div>
+  <!-- Body: The Golden Info (Entity + Value) -->
+  <div class="card-body px-4 py-3">
+    <h4 class="card-title text-white fw-bold mb-1 fs-5 text-truncate" [title]="doc.entity">
+      <span [innerHTML]="highlightSearchTerm(doc.entity, searchQuery)"></span>
+    </h4>
+    
+    <!-- Key Value (e.g. $4,500 over 12 meses) -->
+    <div class="text-light fs-3 fw-bold mb-3 font-monospace letter-spacing-negative-1 text-primary">
+      <span [innerHTML]="highlightSearchTerm(doc.keyMetric, searchQuery)"></span>
+    </div>
+
+    <!-- Pattern Discovery: Highlight Text -->
+    <p class="text-white-50 small mb-0 d-flex gap-2" *ngIf="doc.highlightText" style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px;">
+      <i class="bi bi-quote opacity-50"></i> <i [innerHTML]="highlightSearchTerm(doc.highlightText, searchQuery)"></i>
+    </p>
+    <div *ngIf="!doc.highlightText" style="height: 40px;"></div> <!-- Spacer -->
+  </div>
+
+  <!-- Footer: Metadata & Actions -->
+  <div class="card-footer bg-secondary bg-opacity-10 border-top border-secondary border-opacity-25 px-4 py-3 d-flex justify-content-between align-items-center">
+    
+    <!-- Meta: Extracted Date + System Conf -->
+    <div class="d-flex flex-column">
+      <span class="text-white-50 font-monospace" style="font-size: 0.65rem;">
+        <span [innerHTML]="highlightSearchTerm(doc.id, searchQuery)"></span> • Extracción: {{doc.date | date:'dd MMM yyyy'}}
+      </span>
+      <span class="font-monospace fw-bold" style="font-size: 0.65rem;"
+            [ngClass]="{
+              'text-success': doc.confidence >= 0.90,
+              'text-warning': doc.confidence < 0.90 && doc.confidence >= 0.70,
+              'text-danger': doc.confidence < 0.70
+            }">
+        <i class="bi bi-robot"></i> Confianza: {{doc.confidence | percent}}
+      </span>
+    </div>
+
+    <!-- Instant Action Hover Reveal -->
+    <div class="d-flex gap-2 document-actions opacity-md-0 transition-all">
+      <button class="btn btn-sm btn-dark border border-secondary border-opacity-50 text-light rounded-circle tooltip-btn" title="Descargar JSON" style="width: 35px; height: 35px;" (click)="$event.stopPropagation()">
+        <i class="bi bi-braces"></i>
+      </button>
+      <button class="btn btn-sm btn-primary rounded-circle shadow-sm" title="Ver PDF Original en S3" style="width: 35px; height: 35px;" (click)="$event.stopPropagation()">
+        <i class="bi bi-file-earmark-pdf"></i>
+      </button>
+    </div>
+
+  </div>
+</div>

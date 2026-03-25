@@ -1,0 +1,124 @@
+<!-- Bottom Dashboard Panel (Expanded & Hard Metrics) -->
+<div class="d-flex flex-column align-items-center position-relative z-index-1 w-100 px-3 px-md-5 mb-5 mx-auto"
+  style="max-width: 1400px;">
+
+  <!-- Top Row: Hard Business Metrics -->
+  <div class="row w-100 g-3 mb-3">
+
+    <div class="col-md-4">
+      <div class="glass-panel p-3 rounded-4 shadow-sm h-100 d-flex align-items-center gap-3">
+        <div class="bg-primary bg-opacity-10 rounded-3 p-3 text-primary border border-primary border-opacity-25">
+          <i class="bi bi-clock-history fs-3"></i>
+        </div>
+        <div>
+          <div class="fs-3 fw-bold text-white lh-1">{{metrics.hoursSaved}} horas</div>
+          <div class="text-white-50 small fw-semibold text-uppercase letter-spacing-1 mt-1">Trabajo eliminado</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-panel p-3 rounded-4 shadow-sm h-100 d-flex align-items-center gap-3">
+        <div class="bg-success bg-opacity-10 rounded-3 p-3 text-success border border-success border-opacity-25">
+          <i class="bi bi-files fs-3"></i>
+        </div>
+        <div>
+          <div class="fs-3 fw-bold text-white lh-1">{{metrics.processedToday | number}}</div>
+          <div class="text-white-50 small fw-semibold text-uppercase letter-spacing-1 mt-1">Documentos Procesados</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="glass-panel p-3 rounded-4 shadow-sm h-100 d-flex align-items-center gap-3">
+        <div class="bg-info bg-opacity-10 rounded-3 p-3 text-info border border-info border-opacity-25">
+          <i class="bi bi-bullseye fs-3"></i>
+        </div>
+        <div>
+          <div class="fs-3 fw-bold text-white lh-1">{{metrics.accuracy}}%</div>
+          <div class="text-white-50 small fw-semibold text-uppercase letter-spacing-1 mt-1">Precisión General</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Row: Big Live Stream -->
+  <div class="glass-panel rounded-4 shadow-lg w-100 overflow-hidden d-flex flex-column" style="min-height: 250px;">
+
+    <div
+      class="bg-dark bg-opacity-50 px-4 py-3 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center">
+      <h5 class="text-white-50 fw-semibold text-uppercase letter-spacing-1 fs-6 mb-0 d-flex align-items-center">
+        <span class="status-dot"></span> Flujo de procesamiento en vivo
+      </h5>
+
+      <div class="d-flex align-items-center gap-3">
+        <span
+          class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 font-monospace">
+          {{processingDocuments.length}} Activos
+        </span>
+      </div>
+    </div>
+
+    <div class="p-0 flex-grow-1 stream-container overflow-auto"
+      style="background-color: rgba(3, 7, 18, 0.4); max-height: 250px;">
+      <table class="table table-dark table-hover table-borderless align-middle mb-0 font-monospace small">
+        <thead class="position-sticky top-0 bg-dark z-1 shadow-sm opacity-75" style="font-size: 0.75rem;">
+          <tr>
+            <th class="py-2 ps-4 text-white-50">ARCHIVO</th>
+            <th class="py-2 text-white-50">EXTRACCIÓN</th>
+            <th class="py-2 pe-4 text-end text-white-50">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let doc of processingDocuments"
+            class="border-bottom border-secondary border-opacity-10 align-middle" style="height: 50px;">
+            <td class="ps-4">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-text text-primary" *ngIf="doc.name.includes('.pdf')"></i>
+                <i class="bi bi-image text-warning" *ngIf="doc.name.includes('.jpg') || doc.name.includes('.png')"></i>
+                <span class="text-light fw-medium">{{doc.name}}</span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex flex-column" *ngIf="doc.data">
+                <span class="text-white-50 small font-monospace">NIT: {{doc.data.nit || '---'}}</span>
+                <span class="text-success fw-bold font-monospace" *ngIf="doc.data.total">Total:
+                  {{doc.data.total}}</span>
+                <span class="text-secondary small font-monospace"
+                  *ngIf="!doc.data.total && doc.status === 'Completed'">Extrayendo...</span>
+              </div>
+              <div *ngIf="!doc.data">
+                <span
+                  class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-2 py-1 rounded-1">Pendiente</span>
+              </div>
+            </td>
+            <td class="pe-4 text-end">
+              <!-- Badge de Estado General -->
+              <span class="badge px-2 py-1 rounded-1 me-2" [ngClass]="{
+                         'bg-opacity-10 text-success border-success': doc.status === 'Completed',
+                         'bg-danger bg-opacity-10 text-danger border-danger': doc.status === 'Needs Review'
+                       }" style="border: 1px solid rgba(0,0,0,0.1);">
+                {{doc.status === 'Completed' ? 'Validado' : 'Requiere Revisión'}}
+              </span>
+              <!-- Alerta de Fraude si existe -->
+              <span
+                class="badge bg-danger bg-opacity-25 text-danger border border-danger px-2 py-1 rounded-1 blink-soft"
+                *ngIf="doc.data?.fraud_risk" title="Alerta de Riesgo Identificada por IA">
+                <i class="bi bi-shield-x"></i> RIESGO ALTO
+              </span>
+            </td>
+          </tr>
+          <!-- Zero states / Empty table text -->
+          <tr *ngIf="processingDocuments.length === 0" class="align-middle">
+            <td colspan="3" class="text-center text-white-50 py-4 font-monospace small">
+              No hay documentos disponibles en la base de datos para este tenant.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>

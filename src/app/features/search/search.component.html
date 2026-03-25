@@ -1,0 +1,141 @@
+<div class="container-fluid min-vh-100 d-flex flex-column pb-5" style="background-color: #0f172a;">
+  
+  <!-- Clear space for the absolute Navbar -->
+  <div style="height: 85px;" class="w-100 flex-shrink-0"></div>
+
+  <!-- HEAD: The Spotlight Search Bar -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-12 col-xl-8 col-lg-10 px-4">
+      <div class="position-relative">
+        <!-- Giant "Google" Input -->
+        <i class="bi bi-search position-absolute text-primary fs-3" style="top: 50%; left: 30px; transform: translateY(-50%);"></i>
+        
+        <input 
+          #searchInput
+          type="text" 
+          class="form-control form-control-lg bg-dark bg-opacity-50 border border-secondary border-opacity-50 text-white shadow-lg ps-5 pe-4 py-4" 
+          style="border-radius: 100px; padding-left: 80px !important; font-size: 1.25rem; transition: all 0.3s ease;"
+          placeholder="Busca por proveedor, NIT, valor o tipo de documento..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          id="globalSearchInput"
+        >
+        
+        <!-- Keyboard shortcut hint -->
+        <span class="position-absolute d-none d-md-flex align-items-center gap-1 bg-secondary bg-opacity-25 text-white-50 border border-secondary border-opacity-25 py-1 px-3 rounded-3 font-monospace small" style="top: 50%; right: 25px; transform: translateY(-50%);">
+          <i class="bi bi-command"></i> K
+        </span>
+      </div>
+
+      <!-- Quick Metrics just below search -->
+      <div class="mt-3 ps-4 d-flex gap-4">
+        <span class="text-white-50 small font-monospace"><i class="bi bi-database me-1"></i> Indexando {{allDocuments().length}} documentos</span>
+        <span class="text-white-50 small font-monospace"><i class="bi bi-lightning-charge text-primary me-1"></i> Búsqueda en ~12ms</span>
+        <span class="text-white-50 small font-monospace" *ngIf="aggregations().totalFinancialValue > 0">
+          <i class="bi bi-cash-stack text-success me-1"></i> Valor Total: {{aggregations().totalFinancialValue | currency:'USD':'symbol':'1.0-2'}}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY: Split Layout (Filters vs Results) -->
+  <div class="row mx-0 px-md-4 px-2 g-4 flex-grow-1">
+    
+    <!-- LEFT PANE: Faceted Filters Sidebar -->
+    <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+      <app-search-filters
+        [aggregations]="aggregations()"
+        [filterTypes]="filterTypes()"
+        [currentDateFilter]="currentDateFilter()"
+        (typeTrigger)="toggleTypeFilter($event)"
+        (dateTrigger)="setDateFilter($event)">
+      </app-search-filters>
+    </div>
+
+    <!-- RIGHT PANE: Results Area -->
+    <div class="col-lg-9 col-xl-10">
+      
+      <!-- Query Summary Header -->
+      <div class="d-flex justify-content-between align-items-end border-bottom border-secondary border-opacity-25 pb-3 mb-4">
+        <h3 class="h2 text-white fw-bold mb-0">
+          Resultados <span class="text-primary">{{aggregations().totalFound}}</span>
+        </h3>
+        
+        <div class="d-flex gap-2">
+          <!-- Export Button -->
+          <button class="btn btn-outline-primary py-2 rounded-pill font-monospace small d-flex align-items-center gap-2" 
+                  title="Exportar resultados visibles a CSV">
+            <i class="bi bi-download"></i> Exportar
+          </button>
+
+          <!-- Simple Sort dropdown -->
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary border-0 text-light py-2 rounded-pill dropdown-toggle font-monospace small d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-sort-down"></i> 
+              {{ currentSortOption() === 'newest' ? 'Más Recientes' : 
+                 currentSortOption() === 'oldest' ? 'Más Antiguos' : 
+                 currentSortOption() === 'highestValue' ? 'Mayor Valor' : 'Mayor Confianza' }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-sm border border-secondary border-opacity-50">
+              <li><button class="dropdown-item small" [class.active]="currentSortOption() === 'newest'" (click)="setSortOption('newest')">Más Recientes</button></li>
+              <li><button class="dropdown-item small" [class.active]="currentSortOption() === 'oldest'" (click)="setSortOption('oldest')">Más Antiguos</button></li>
+              <li><button class="dropdown-item small" [class.active]="currentSortOption() === 'highestConfidence'" (click)="setSortOption('highestConfidence')">Mayor Confianza</button></li>
+              <li><button class="dropdown-item small" [class.active]="currentSortOption() === 'highestValue'" (click)="setSortOption('highestValue')">Mayor Valor</button></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPLIT PANE CONTAINER -->
+      <div class="row m-0 p-0">
+        
+        <!-- LEFT SIDE: Grid -->
+        <div class="p-0 transition-all" [ngClass]="selectedDocumentToPreview() ? 'col-12 col-xl-7 pe-xl-4' : 'col-12'">
+          
+          <!-- Multi-Column Grid for Rich Result Cards -->
+          <div class="row g-4" *ngIf="filteredResults().length > 0; else emptyState" [@listAnimation]="filteredResults().length">
+            
+            <div *ngFor="let doc of filteredResults()" 
+                 class="transition-all"
+                 [ngClass]="selectedDocumentToPreview() ? 'col-12 col-md-12' : 'col-12 col-md-6 col-xxl-4'">
+                 
+              <app-document-card
+                 [doc]="doc"
+                 [isSelected]="selectedDocumentToPreview()?.id === doc.id"
+                 [searchQuery]="searchQuery()"
+                 (preview)="togglePreviewPanel($event)">
+              </app-document-card>
+            </div>
+          </div>
+
+          <!-- Empty State / No Results -->
+          <ng-template #emptyState>
+            <div class="d-flex flex-column justify-content-center align-items-center text-center py-5 mt-5">
+              <div class="bg-secondary bg-opacity-10 rounded-circle d-flex justify-content-center align-items-center mb-4 border border-secondary border-opacity-25" style="width: 120px; height: 120px;">
+                <i class="bi bi-search text-secondary opacity-50" style="font-size: 3rem;"></i>
+              </div>
+              <h3 class="text-white fw-bold">Ningún patrón encontrado</h3>
+              <p class="text-white-50 mx-auto" style="max-width: 400px;">
+                El motor de búsqueda avanzado no pudo encontrar documentos que coincidan con 
+                <span class="text-white font-monospace">"{{searchQuery()}}"</span> y los filtros actuales.
+              </p>
+              <button class="btn btn-outline-secondary mt-3 rounded-pill px-4 py-2" (click)="searchQuery.set('')">Borrar búsqueda</button>
+            </div>
+          </ng-template>
+
+        </div>
+
+        <!-- RIGHT SIDE: Split Pane Preview -->
+        <div class="col-12 col-xl-5 d-none d-xl-block transition-all" *ngIf="selectedDocumentToPreview()">
+          <app-document-preview 
+             [document]="selectedDocumentToPreview()" 
+             (close)="closePreviewPanel()">
+          </app-document-preview>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
