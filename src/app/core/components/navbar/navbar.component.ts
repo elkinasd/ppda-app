@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -8,7 +9,8 @@ import { Router } from '@angular/router';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
+  private authService = inject(AuthService);
 
   goHome(): void {
     this.router.navigate(['/']);
@@ -16,5 +18,10 @@ export class NavbarComponent {
 
   goSearch(): void {
     this.router.navigate(['/search']);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
